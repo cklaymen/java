@@ -12,6 +12,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import model.ChristmasTree;
 import model.ChristmasTreeSizeException;
 
@@ -41,6 +42,15 @@ public class view extends HttpServlet {
         int width=0, noOfTriangles=0;
         boolean paramsOk = false, sizeOk = false;
         List <String> rowsOfChristmasTree = null;
+        int yourVisitCounter = 0;
+        
+        HttpSession session = request.getSession(true);
+        Object obj = session.getAttribute("yourVisitCounter");
+        if (obj != null) {
+            yourVisitCounter = (int) obj;
+        }
+        yourVisitCounter++;
+        session.setAttribute("yourVisitCounter", yourVisitCounter);
         
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
@@ -76,6 +86,7 @@ public class view extends HttpServlet {
                 } else {
                     out.println("<h3>Parameters error.</h3>");
                 }
+                out.println("<p>your visits in this session: " + yourVisitCounter + "</p>");
                 out.println("</body>");
                 out.println("</html>");
             }

@@ -2,6 +2,7 @@
     Document   : index
     Created on : 2016-12-28, 21:19:05
     Author     : Ryszard
+    Version    : 1.0
 --%>
 <%
    boolean secretKey = false;
