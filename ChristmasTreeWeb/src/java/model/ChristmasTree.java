@@ -5,6 +5,7 @@
  */
 package model;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class ChristmasTree {
     }
     
     
-    public void changeSize(int width, int noOfTriangles) throws ChristmasTreeSizeException {
+    public void changeSize(int width, int noOfTriangles) throws ChristmasTreeSizeException, SQLException {
         this.setWidth(width);
         this.setNoOfTriangles(noOfTriangles);
         this.log.addLog(width, noOfTriangles, new Date());
@@ -87,7 +88,7 @@ public class ChristmasTree {
         this.noOfTriangles = noOfTriangles;
     }
     
-    public synchronized List <String> getRowsListSync(int width, int noOfTriangles) throws ChristmasTreeSizeException {
+    public synchronized List <String> getRowsListSync(int width, int noOfTriangles) throws ChristmasTreeSizeException, SQLException {
         changeSize(width, noOfTriangles);
         return getRowsList();
     }

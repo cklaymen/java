@@ -6,6 +6,8 @@
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -40,8 +42,9 @@ public class view extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int width=0, noOfTriangles=0;
-        boolean paramsOk = false, sizeOk = false;
+        boolean paramsOk = false, sizeOk = true;
         List <String> rowsOfChristmasTree = null;
+        List <String> rowsOfErrors = new LinkedList();
         int yourVisitCounter = 0;
         
         HttpSession session = request.getSession(true);
@@ -55,18 +58,21 @@ public class view extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
+            
             try {
                 if (!request.getParameter("width").isEmpty() && !request.getParameter("height").isEmpty()) {
                     width = Integer.parseInt(request.getParameter("width"));
                     noOfTriangles = Integer.parseInt(request.getParameter("height"));
                     paramsOk = true;
                     rowsOfChristmasTree = christmasTree.getRowsListSync(width, noOfTriangles);
-                    sizeOk = true;
                 }
             } catch (NumberFormatException e) {
-
+                rowsOfErrors.add(e.getMessage());
             } catch (ChristmasTreeSizeException e) {
-            
+                rowsOfErrors.add(e.getMessage());
+                sizeOk = false;
+            } catch (SQLException sqle) {
+                rowsOfErrors.add(sqle.getMessage());
             } finally {
                 out.println("<!DOCTYPE html>");
                 out.println("<html>");
@@ -78,7 +84,9 @@ public class view extends HttpServlet {
                     if (sizeOk) {
                         out.println("<h3>width: " + width + ", number of triangles: " + noOfTriangles + "</h3>");
                         out.println("<p><pre>");
-                        rowsOfChristmasTree.forEach(row -> out.println(row));
+                        if (rowsOfChristmasTree != null) {
+                            rowsOfChristmasTree.forEach(row -> out.println(row));
+                        }
                         out.println("</pre></p>");
                     } else {
                         out.println("<h3>Christmas Tree size error.</h3>");
@@ -87,6 +95,9 @@ public class view extends HttpServlet {
                     out.println("<h3>Parameters error.</h3>");
                 }
                 out.println("<p>your visits in this session: " + yourVisitCounter + "</p>");
+                out.println("<div>");
+                rowsOfErrors.forEach(err -> out.println(err));
+                out.println("</div>");
                 out.println("</body>");
                 out.println("</html>");
             }

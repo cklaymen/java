@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/ChristmasTreeApp">    
+<Resource name="jdbc/lab" 
+              auth="Container"
+              type="javax.sql.DataSource" 
+              username="lab" 
+              password="lab"              
+              driverClassName="org.apache.derby.jdbc.ClientDriver"
+              url="jdbc:derby://localhost:1527/lab" 
+              maxActive="10" 
+              maxIdle="4"/>
+</Context>

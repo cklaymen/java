@@ -14,6 +14,9 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 /**
  *
@@ -28,12 +31,20 @@ public class ChristmasTreeLog {
     static {
         if (con==null) {
             try {
-                Class.forName("org.apache.derby.jdbc.ClientDriver");
-                con = DriverManager.getConnection("jdbc:derby://localhost:1527/lab", "lab", "lab");
+                Context ctx = new InitialContext();
+                String dbName = (String) ctx.lookup("java:comp/env/DBName");
+                String dbConnection = (String) ctx.lookup("java:comp/env/DBConnection");
+                String dbUser = (String) ctx.lookup("java:comp/env/DBUser");
+                String dbPassword = (String) ctx.lookup("java:comp/env/DBPassword");
+
+                Class.forName(dbName);
+                con = DriverManager.getConnection(dbConnection, dbUser, dbPassword);
             } catch (ClassNotFoundException cnfe) {
                 System.err.println("ClassNotFound exception: " + cnfe.getMessage());
             } catch (SQLException sqle) {
                 System.err.println("SQL exception: " + sqle.getMessage());
+            } catch (NamingException err) {
+                System.err.println("Naming exception: " + err.getMessage());
             }
         }
     }
@@ -45,7 +56,7 @@ public class ChristmasTreeLog {
         fetchData();
     }
     
-    public void addLog (int width, int height, Date date) {
+    public void addLog (int width, int height, Date date) throws SQLException {
         widthList.add(width);
         heightList.add(height);
         dateList.add(date);
@@ -60,16 +71,12 @@ public class ChristmasTreeLog {
         return row;
     }
     
-    public void insertData(int width, int height, Date date) {
-        try {
-            PreparedStatement pstmt = con.prepareStatement("INSERT INTO log(width, height, date) VALUES (?,?,?)");
-            pstmt.setInt(1, width);
-            pstmt.setInt(2, height);
-            pstmt.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
-            pstmt.executeUpdate();
-        } catch (SQLException sqle) {
-            System.err.println("SQL exception: " + sqle.getMessage());
-        }
+    public void insertData(int width, int height, Date date) throws SQLException {
+        PreparedStatement pstmt = con.prepareStatement("INSERT INTO log(width, height, date) VALUES (?,?,?)");
+        pstmt.setInt(1, width);
+        pstmt.setInt(2, height);
+        pstmt.setTimestamp(3, new java.sql.Timestamp(date.getTime()));
+        pstmt.executeUpdate();
     }
 
     private void fetchData() {
